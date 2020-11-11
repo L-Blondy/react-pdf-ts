@@ -1,0 +1,8 @@
+.pdf_page {
+   display: inline-flex;
+   flex-direction: column;
+
+   &.readonly {
+      pointer-events: none;
+   }
+}

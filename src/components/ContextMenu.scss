@@ -1,0 +1,47 @@
+.table_context_menu {
+   cursor: pointer;
+
+   * {
+      cursor: pointer;
+   }
+
+   label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+   }
+
+   span {
+      padding-bottom: 2px;
+   }
+
+   .bp3-text-overflow-ellipsis {
+      overflow: visible;
+   }
+
+   .bp3-menu-divider {
+      background: #777777;
+   }
+
+   .icon {
+      position: relative;
+      margin-right: 0.5rem;
+   }
+
+   #verified,
+   #not_verified,
+   #rejected {
+      &::before {
+         content: '';
+         position: absolute;
+         height: 100%;
+         width: 100%;
+         border-radius: 50px;
+         background: currentColor;
+      }
+
+      &:checked::before {
+         box-shadow: 0 0 0 3px white;
+      }
+   }
+}

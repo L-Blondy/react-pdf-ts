@@ -1,0 +1,25 @@
+@import 'src/styles/variables.scss';
+
+.stage_container {
+   position: relative;
+   display: inline-block;
+   background: #ffffff90;
+
+   &.loaded canvas {
+      animation: fadein 500ms forwards;
+   }
+
+   &.crosshair_cursor {
+      cursor: crosshair;
+   }
+
+   .pdf_page_placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      stroke: $clr-electric;
+      animation: fadein 500ms forwards;
+   }
+}

@@ -1,0 +1,66 @@
+$clr-electric: #63cae1;
+
+$clr-bg-dark1: #151c26;
+$clr-bg-active: #63cae125;
+$clr-bg-primary: #ce4449; //#a62228;
+$clr-bg-page: #f0f0f0;
+$clr-bg-ctrl-bar: #ced6d8;
+
+$clr-font-light1: #d8e2e4;
+$clr-font-dark1: #31353d;
+$clr-font-dark2: #484e57;
+$clr-font-dark3: #5c6069;
+
+$clr-card-border: #aaaaaa;
+$clr-card-bg: #fafafa;
+
+$clr-not_started: $clr-font-dark2;
+$clr-in_progress: #dfb520;
+$clr-complete: #5fb71a; //#72C135;  5fb71a
+$clr-success: $clr-complete; //#549a03;
+
+$bold: 600;
+$app-x-padding: 2.2rem;
+$navbar-height: 66px;
+
+@mixin bg-image-center {
+   background-position: center;
+   background-size: contain;
+   background-repeat: no-repeat;
+}
+
+@mixin absolute-center {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+
+@mixin flex-align-center {
+   display: flex;
+   align-items: center;
+}
+
+@mixin minimal {
+   border: none;
+   background-color: transparent;
+   color: inherit;
+   font-size: inherit;
+   font-weight: inherit;
+   margin: 0;
+   padding: 0;
+
+   &:hover {
+      color: inherit;
+   }
+}
+
+@keyframes fadein {
+   from {
+      opacity: 0;
+   }
+
+   to {
+      opacity: 1;
+   }
+}

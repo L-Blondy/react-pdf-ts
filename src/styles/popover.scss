@@ -1,0 +1,75 @@
+@import './variables.scss';
+
+$clr-bg-popover: $clr-bg-dark1;
+$clr-bg-tooltip: #6d7f85;
+
+.bp3-popover {
+   letter-spacing: 0.02em;
+   color: $clr-font-light1;
+
+   .bp3-popover-arrow path {
+      fill: $clr-bg-popover !important;
+   }
+
+   .bp3-popover-content {
+      font-size: 0.94rem;
+
+      &::before {
+         content: '';
+         width: calc(100% + 30px);
+         height: calc(100% + 30px);
+         background: transparent;
+         @include absolute-center;
+         z-index: -1;
+         pointer-events: none;
+      }
+   }
+
+   .bp3-menu {
+      background: $clr-bg-popover;
+      color: inherit;
+      min-width: 166px;
+   }
+
+   .bp3-menu-item {
+      padding: 5px 12px;
+      line-height: 1.5em;
+
+      &:hover {
+         background-color: $clr-bg-active;
+      }
+   }
+
+   .bp3-icon {
+      color: inherit;
+   }
+}
+
+.bp3-popover-wrapper {
+   display: inline-flex;
+   justify-content: stretch;
+
+   span {
+      display: inline-flex;
+   }
+
+   &.disabled {
+      opacity: 1;
+   }
+}
+
+.bp3-popover.bp3-tooltip {
+   letter-spacing: 0;
+
+   .bp3-popover-arrow path {
+      fill: $clr-bg-tooltip !important;
+   }
+
+   .bp3-popover-content {
+      background: $clr-bg-tooltip;
+      color: $clr-font-light1;
+      padding: 0 1em;
+      line-height: 2.2em;
+      font-size: 0.9rem;
+   }
+}
