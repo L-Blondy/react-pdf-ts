@@ -5,8 +5,9 @@ import { KonvaEventObject } from 'konva/types/Node';
 import { LayerContextMenu } from './'
 import { IServerTable } from './Table';
 import { useGlobalKeyDown, useGlobalKeyUp } from 'src/hooks';
+import { arePropsEqualDeep } from 'src/utils'
 
-interface Props extends Omit<IPDFPageCanvasProps, 'enableDraw'> {
+export interface IPDFPageProps extends Omit<IPDFPageCanvasProps, 'enableDraw'> {
 	readOnly?: boolean
 	hidePageNumber?: boolean
 	hideTags?: boolean
@@ -17,15 +18,13 @@ function PDFPage({
 	readOnly = false,
 	hidePageNumber = false,
 	hideTags = false,
-	// onRender = () => { },
-	// onClickTable = () => { },
-	// onDeleteTable = () => { },
-	// onUpdateTable = () => { },
 	onCreateTable = () => { },
 	...props
-}: Props) {
+}: IPDFPageProps) {
+	console.log('PAGE RERENDER')
 
 	const [ isDrawEnabled, setIsDrawEnabled ] = useState(false)
+	const [ isMouseOverCanvas, setIsMouseOverCanvas ] = useState(false)
 
 	function handleLayerContextMenu(e: KonvaEventObject<PointerEvent>) {
 		LayerContextMenu({
@@ -58,6 +57,8 @@ function PDFPage({
 				</button>
 			)}
 			<PDFPageCanvas
+				onMouseEnter={() => setIsMouseOverCanvas(true)}
+				onMouseLeave={() => setIsMouseOverCanvas(false)}
 				pageNumber={pageNumber}
 				onLayerContextMenu={handleLayerContextMenu}
 				enableDraw={isDrawEnabled}
@@ -71,4 +72,6 @@ function PDFPage({
 	)
 }
 
-export default PDFPage;
+
+
+export default React.memo(PDFPage, arePropsEqualDeep);

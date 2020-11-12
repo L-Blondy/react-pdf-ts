@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useIsMounted } from './'
+import { useGetIsMounted } from './'
 
 const useDebouncedState = <T extends unknown>(initialValue: T, ms: number) => {
 
 	const [ state, setState ] = useState(initialValue)
-	const isMounted = useIsMounted()
+	const isMounted = useGetIsMounted()
 	const cancelTokenRef = useRef<NodeJS.Timeout>()
 
 	function set(newValue: T) {

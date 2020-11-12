@@ -12,6 +12,8 @@ function usePDFPageCanvas(
 	const documentProxy = usePDFContext()
 	const [ canvas, setCanvas ] = useState<HTMLCanvasElement>()
 	const [ pageDebounced, setPageDebounced ] = useDebouncedState(pageNumber, debounce)
+	const [ isLoaded, setIsLoaded ] = useState(false)
+	const isLoadedRef = useRef(false)
 
 	function onPageNumberChange() {
 		setPageDebounced(pageNumber)
@@ -19,7 +21,8 @@ function usePDFPageCanvas(
 	}
 
 	function onPageDebouncedChange() {
-		isVisible && documentProxy
+		!isLoadedRef.current && isVisible && documentProxy
+			// isVisible && documentProxy
 			.getPage(pageDebounced)
 			.then((pageProxy: any) => {
 				const newCanvas = document.createElement('canvas')
@@ -31,13 +34,13 @@ function usePDFPageCanvas(
 
 				renderTask.promise.then((e: any) => {
 					setCanvas(newCanvas)
-					console.log(newCanvas)
+					isLoadedRef.current = true
 				})
 			})
 	}
 
 	useEffect(onPageNumberChange, [ pageNumber ]) //eslint-disable-line
-	useEffect(onPageDebouncedChange, [ pageDebounced, isVisible, documentProxy ])
+	useEffect(onPageDebouncedChange, [ pageDebounced, isVisible, documentProxy, setIsLoaded, isLoaded ])
 
 	return [ canvas, documentProxy.pageWidth * scale, documentProxy.pageHeight * scale ] as const
 }

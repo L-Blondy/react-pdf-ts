@@ -154,7 +154,6 @@ const PDFDocument = ({
 						onLoadSuccess={handleDocumentLoadSuccess}
 						loading={<Preloader />}
 						noData={<Preloader />}>
-
 						{PDFProxy
 							? typeof children === 'function' ? children(pageNumberList) : children
 							: <Preloader />
@@ -170,4 +169,4 @@ const PDFDocument = ({
 	)
 }
 
-export default PDFDocument;
+export default React.memo(PDFDocument);

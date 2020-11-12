@@ -1,4 +1,4 @@
-export { default as useIsMounted } from './useIsMounted'
+export { default as useGetIsMounted } from './useGetIsMounted'
 export { default as useUpdatedRef } from './useUpdatedRef'
 export { default as useDebouncedState } from './useDebouncedState'
 export { default as useMountedEffect } from './useMountedEffect'

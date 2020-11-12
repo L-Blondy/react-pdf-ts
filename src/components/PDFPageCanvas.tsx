@@ -23,9 +23,11 @@ export interface IPDFPageCanvasProps {
 	onCreateTable?: (table: IServerTable) => void
 	onLayerContextMenu?: (e: KonvaEventObject<PointerEvent>) => void
 	onClick?: (e: React.MouseEvent) => void
+	onMouseEnter?: (e: React.MouseEvent) => void
+	onMouseLeave?: (e: React.MouseEvent) => void
 }
 
-function PDFPageCanvas({
+const PDFPageCanvas = ({
 	pageNumber,
 	scale = 1,
 	debounceRenderMs = 500,
@@ -38,15 +40,18 @@ function PDFPageCanvas({
 	onUpdateTable = () => { },
 	onCreateTable = () => { },
 	onLayerContextMenu = () => { },
-	onClick = () => { }
-}: IPDFPageCanvasProps) {
+	onClick = () => { },
+	onMouseEnter = () => { },
+	onMouseLeave = () => { }
+}: IPDFPageCanvasProps) => {
 
 	const layerRef = useRef<HTMLCanvasElement | null>(null)
 	const onRenderRef = useUpdatedRef(onRender)
-	const isVisible = useIsVisible(layerRef)
+	const loadCanvas = useIsVisible(layerRef, { margin: '1000px' })
+	const showPreloader = useIsVisible(layerRef)
 	const [ hoverTargetName, setHoverTargetName ] = useState('')
 	const { tableStyles } = usePDFContext()
-	const [ canvas, pageWidth, pageHeight ] = usePDFPageCanvas(pageNumber, debounceRenderMs, scale, isVisible)
+	const [ canvas, pageWidth, pageHeight ] = usePDFPageCanvas(pageNumber, debounceRenderMs, scale, loadCanvas)
 	const [ tables, setTables ] = useState<ILibraryTable[]>(toLibraryTables(ServerTables, scale))
 
 	useMouseCursorEffect(hoverTargetName, enableDraw, layerRef)
@@ -84,9 +89,13 @@ function PDFPageCanvas({
 	}
 
 	return (
-		<div className={`stage_container ${canvas ? 'loaded' : ''}`} onClick={onClick}>
+		<div
+			className={`stage_container ${canvas ? 'loaded' : ''}`}
+			onClick={onClick}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave} >
 
-			<PDFPageCanvasPreloader when={!canvas && isVisible} />
+			<PDFPageCanvasPreloader when={!canvas && showPreloader} />
 
 			<Stage height={pageHeight} width={pageWidth}>
 
