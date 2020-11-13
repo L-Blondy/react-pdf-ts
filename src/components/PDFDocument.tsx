@@ -67,6 +67,7 @@ const PDFDocument = ({
 	const [ progress, setProgress ] = useState(0)
 
 	useEffect(() => {
+		setPDFProxy(null)
 		const source = axios.CancelToken.source();
 
 		axios
@@ -88,7 +89,7 @@ const PDFDocument = ({
 			.catch(console.log)
 
 		return () => source.cancel('cancelled request')
-	}, [])
+	}, [ file ])
 
 	const handleDocumentLoadSuccess = (documentProxy: any) => {
 		documentProxy
@@ -149,7 +150,7 @@ const PDFDocument = ({
 			{progress === 100
 				? (
 					<Document
-						className={`pdf_document ${className} ${PDFProxy?.pageWidth ? '' : 'loading'}`}
+						className={`pdf_document ${className} ${PDFProxy ? '' : 'loading'}`}
 						file={base64Url}
 						onLoadSuccess={handleDocumentLoadSuccess}
 						loading={<Preloader />}

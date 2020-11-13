@@ -10,6 +10,7 @@ axios.defaults.baseURL = "http://127.0.0.1:8000";
 function App() {
 
 	// const [ page, setPage ] = useState(1)
+	const [ file, setFile ] = useState('Publication.pdf')
 	const [ scale, setScale ] = useState(0.8)
 	const [ tables, setTables ] = useState<IServerTable[]>([])
 	const pendingUpdatesCountRef = useRef(0)
@@ -62,9 +63,13 @@ function App() {
 				<button onClick={() => setScale(scale - 0.1)}> - </button>
 				Zoom
 				<button onClick={() => setScale(scale + 0.1)}> + </button>
+
+				<br />
+
+				<button onClick={() => setFile('SomePDF.pdf')}> SomePDF.pdf </button>
+				<button onClick={() => setFile('Publication.pdf')}> Publication.pdf </button>
 			</h2>
 
-			<br />
 			{/* 
 			<div>
 				<button onClick={() => setPage(page - 1)}>Previous page</button>
@@ -73,7 +78,7 @@ function App() {
 
 			<br /> */}
 
-			<PDFDocument file='http://127.0.0.1:8000/pdf/Publication.pdf' tableStyles={{}}>
+			<PDFDocument file={`http://127.0.0.1:8000/pdf/${file}`} tableStyles={{}}>
 
 				{pageNumberList => pageNumberList.map((pageNumber) => (
 					<PDFPage

@@ -1,13 +1,14 @@
 html,
 body,
-#root {
+#root,
+.app {
    height: 100%;
    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-// .pdf_document {
-   //    height: 100%;
-   //    display: flex;
-   //    flex-direction: column;
-   //    align-items: center;
-   // }
+.pdf_document {
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}

@@ -32,11 +32,14 @@ function usePDFPageCanvas(
 				const viewport = pageProxy.getViewport({ scale: 1 })
 				const renderTask = pageProxy.render({ canvasContext, viewport });
 
-				renderTask.promise.then((e: any) => {
-					setCanvas(newCanvas)
-					isLoadedRef.current = true
-				})
+				renderTask.promise
+					.then((e: any) => {
+						setCanvas(newCanvas)
+						isLoadedRef.current = true
+					})
+					.catch(console.log)
 			})
+			.catch(console.log)
 	}
 
 	useEffect(onPageNumberChange, [ pageNumber ]) //eslint-disable-line
