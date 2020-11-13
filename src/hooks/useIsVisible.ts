@@ -5,13 +5,14 @@ function useIsVisible(layerRef: React.MutableRefObject<HTMLCanvasElement | null>
 
 	const IORef = useRef(new IntersectionObserver(entries => {
 		entries.forEach(e => {
-			if (e.intersectionRatio === 0) return
-			setIsVisible(true)
-			IORef.current.unobserve(layerRef.current!)
+			e.intersectionRatio === 0
+				? setIsVisible(false)
+				: setIsVisible(true)
+			// IORef.current.unobserve(layerRef.current!)
 		})
 	}, {
 		root: document.querySelector('#root'),
-		rootMargin: `0px 0px ${options?.margin || '0px'} 0px`
+		rootMargin: `${options?.margin || '0px'} 0px ${options?.margin || '0px'} 0px`
 	}))
 
 	useEffect(() => {

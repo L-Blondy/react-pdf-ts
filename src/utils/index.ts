@@ -1,2 +1,2 @@
 export { default as stringifiedEqual } from './stringifiedEqual'
-export { default as arePropsEqualDeep } from './arePropsEqualDeep'
+export { default as areDeepEqual } from './areDeepEqual'

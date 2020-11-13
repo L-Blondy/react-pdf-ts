@@ -25,6 +25,7 @@ export interface IPDFPageCanvasProps {
 	onClick?: (e: React.MouseEvent) => void
 	onMouseEnter?: (e: React.MouseEvent) => void
 	onMouseLeave?: (e: React.MouseEvent) => void
+	onVisibilityChange?: (isVisible: boolean) => void
 }
 
 const PDFPageCanvas = ({
@@ -42,12 +43,14 @@ const PDFPageCanvas = ({
 	onLayerContextMenu = () => { },
 	onClick = () => { },
 	onMouseEnter = () => { },
-	onMouseLeave = () => { }
+	onMouseLeave = () => { },
+	onVisibilityChange = () => { }
 }: IPDFPageCanvasProps) => {
 
 	const layerRef = useRef<HTMLCanvasElement | null>(null)
 	const onRenderRef = useUpdatedRef(onRender)
-	const shouldLoadCanvas = useIsVisible(layerRef, { margin: '1000px' })
+	const onVisibilityChangeRef = useUpdatedRef(onVisibilityChange)
+	const shouldLoadCanvas = useIsVisible(layerRef, { margin: '500px' })
 	const isVisible = useIsVisible(layerRef)
 	const [ hoverTargetName, setHoverTargetName ] = useState('')
 	const { tableStyles } = usePDFContext()
@@ -57,6 +60,9 @@ const PDFPageCanvas = ({
 	useMouseCursorEffect(hoverTargetName, enableDraw, layerRef)
 	useEffect(() => setTables(toLibraryTables(ServerTables, scale)), [ ServerTables, scale ])
 	useEffect(() => canvas && onRenderRef.current(canvas), [ canvas, onRenderRef ])
+	useEffect(() => {
+		onVisibilityChangeRef.current(shouldLoadCanvas)
+	}, [ shouldLoadCanvas, onVisibilityChangeRef ])
 
 	function updateTable(table: ILibraryTable) {
 		setTables(tables.map(t => t.id === table.id ? table : t))

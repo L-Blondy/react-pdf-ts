@@ -58,7 +58,7 @@ function App() {
 
 	return (
 		<div className='app'>
-			<h2>
+			<h2 style={{ position: 'fixed', zIndex: 10000, background: '#eee' }}>
 				<button onClick={() => setScale(scale - 0.1)}> - </button>
 				Zoom
 				<button onClick={() => setScale(scale + 0.1)}> + </button>
