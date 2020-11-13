@@ -66,7 +66,7 @@ function App() {
 
 				<br />
 
-				<button onClick={() => setFile('SomePDF.pdf')}> SomePDF.pdf </button>
+				<button onClick={() => setFile('SomePDF.pd')}> SomePDF.pdf </button>
 				<button onClick={() => setFile('Publication.pdf')}> Publication.pdf </button>
 			</h2>
 

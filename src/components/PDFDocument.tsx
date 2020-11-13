@@ -63,25 +63,22 @@ const PDFDocument = ({
 	tableStyles = {}
 }: Props) => {
 
-	const [ PDFProxy, setPDFProxy ] = useState<IPDFProxy | null>(null)
 	const [ base64Url, setBase64Url ] = useState<string>('')
-	const [ progress, setProgress ] = useState(0)
-
-	const [ state, dispatch ] = useAsyncReducer<PDFPageProxy, any>({
+	const [ state, dispatch ] = useAsyncReducer<IPDFProxy, any>({
 		pending: true,
 		error: null,
-		data: null
+		data: null,
 	})
 
 	useEffect(() => {
-		setPDFProxy(null)
+		dispatch([ 'pending' ])
 		const source = axios.CancelToken.source();
 
 		axios
 			.get(file, {
 				responseType: 'arraybuffer',
 				cancelToken: source.token,
-				onDownloadProgress: (e) => setProgress(e.loaded / e.total * 100 | 0),
+				onDownloadProgress: (e) => dispatch([ 'progress', e.loaded / e.total * 100 | 0 ]),
 			})
 			.then(res => res.data)
 			.then((data: ArrayBuffer) => {
@@ -93,16 +90,16 @@ const PDFDocument = ({
 				const base64 = `data:application/pdf;base64,${window.btoa(binary)}`
 				setBase64Url(base64)
 			})
-			.catch(console.log)
+			.catch(e => dispatch([ 'error', e ]))
 
 		return () => source.cancel('cancelled request')
-	}, [ file ])
+	}, [ file ]) //eslint-disable-line
 
 	const handleDocumentLoadSuccess = (documentProxy: any) => {
 		documentProxy
 			.getPage(1)
 			.then((pageProxy: PDFPageProxy) => {
-				setPDFProxy({
+				dispatch([ 'data', {
 					...documentProxy,
 					getPage: documentProxy.getPage,
 					numPages: documentProxy.numPages,
@@ -131,48 +128,52 @@ const PDFDocument = ({
 						},
 
 					}
-				});
+				} as IPDFProxy ]);
 			})
 	}
 
 	useEffect(() => {
-		PDFProxy && onLoad(PDFProxy as IPDFProxy)
-	}, [ PDFProxy, onLoad ])
+		state.data && onLoad(state.data)
+	}, [ state.data, onLoad ])
 
 	const Preloader = () => (
 		<ProgressCircle
 			transitionDuration={0.1}
 			gradient={[ { stop: 0.0, color: '#63cae1' }, { stop: 1, color: '#26a4c0' } ]}
 			className='progress_bar_circle'
-			progress={progress}
+			progress={state.progress}
 			strokeWidth={8}
 			hideBall
 		/>
 	)
 
-	const pageNumberList = useMemo(() => Array.from({ length: PDFProxy?.numPages || 0 }, (_, i) => i + 1), [ PDFProxy?.numPages ])
+	const pageNumberList = useMemo(() => (
+		Array.from({ length: state.data?.numPages || 0 }, (_, i) => i + 1)
+	), [ state.data?.numPages ])
 
 	return (
-		<PDFContext.Provider value={PDFProxy as IPDFProxy}>
-			{progress === 100
-				? (
-					<Document
-						className={`pdf_document ${className} ${PDFProxy ? '' : 'loading'}`}
-						file={base64Url}
-						onLoadSuccess={handleDocumentLoadSuccess}
-						loading={<Preloader />}
-						noData={<Preloader />}>
-						{PDFProxy
-							? typeof children === 'function' ? children(pageNumberList) : children
-							: <Preloader />
-						}
-					</Document>
-				) : (
-					<div className={`pdf_document loading ${className}`}>
-						<Preloader />
-					</div>
-				)
-			}
+		<PDFContext.Provider value={state.data as IPDFProxy}>
+			{state.error && (
+				JSON.stringify(state.error)
+			)}
+			{!state.error && state.progress < 100 && (
+				<div className={`pdf_document loading ${className}`}>
+					<Preloader />
+				</div>
+			)}
+			{!state.error && state.progress === 100 && (
+				<Document
+					className={`pdf_document ${className} ${state.data ? '' : 'loading'}`}
+					file={base64Url}
+					onLoadSuccess={handleDocumentLoadSuccess}
+					loading={<Preloader />}
+					noData={<Preloader />}>
+					{state.data
+						? typeof children === 'function' ? children(pageNumberList) : children
+						: <Preloader />
+					}
+				</Document>
+			)}
 		</PDFContext.Provider>
 	)
 }

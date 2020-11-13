@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 
 type IAction<Data, Error> = (
-	| [ 'pending', boolean ]
+	| [ 'pending', boolean?]
 	| [ 'error', Error ]
 	| [ 'data', Data ]
 	| [ 'progress', number ]
@@ -11,7 +11,7 @@ interface IState<Data, Error> {
 	pending: boolean,
 	error: Error | null,
 	data: Data | null,
-	progress?: number
+	progress: number
 }
 
 const asyncReducer = <Data, Error extends any>(
@@ -48,13 +48,20 @@ const asyncReducer = <Data, Error extends any>(
 				pending: false,
 				data: null,
 				error: payload as Error,
-				progress: 100
+				progress: 0
 			}
 	}
 }
 
-const useAsyncReducer = <Data, Error>(initialState: IState<Data, Error>) => {
-	return useReducer(asyncReducer, initialState) as [ IState<Data, Error>, React.Dispatch<IAction<Data, Error>> ]
+const defaultState = {
+	pending: false,
+	error: null,
+	data: null,
+	progress: 0
+}
+
+const useAsyncReducer = <Data, Error>(initialState: Partial<IState<Data, Error>>) => {
+	return useReducer(asyncReducer, { ...defaultState, ...initialState }) as [ IState<Data, Error>, React.Dispatch<IAction<Data, Error>> ]
 }
 
 export default useAsyncReducer;
