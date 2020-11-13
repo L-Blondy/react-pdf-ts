@@ -4,12 +4,14 @@ type IAction<Data, Error> = (
 	| [ 'pending', boolean ]
 	| [ 'error', Error ]
 	| [ 'data', Data ]
+	| [ 'progress', number ]
 )
 
 interface IState<Data, Error> {
-	'pending': boolean,
-	'error': Error | null,
-	'data': Data | null
+	pending: boolean,
+	error: Error | null,
+	data: Data | null,
+	progress?: number
 }
 
 const asyncReducer = <Data, Error extends any>(
@@ -24,19 +26,29 @@ const asyncReducer = <Data, Error extends any>(
 			return {
 				pending: true,
 				error: null,
-				data: null
+				data: null,
+				progress: 0
+			}
+		case 'progress':
+			return {
+				pending: true,
+				error: null,
+				data: null,
+				progress: payload as number
 			}
 		case 'data':
 			return {
 				pending: false,
 				error: null,
-				data: payload as Data
+				data: payload as Data,
+				progress: 100
 			}
 		case 'error':
 			return {
 				pending: false,
+				data: null,
 				error: payload as Error,
-				data: null
+				progress: 100
 			}
 	}
 }

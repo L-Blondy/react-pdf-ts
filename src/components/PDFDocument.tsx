@@ -3,8 +3,9 @@ import axios from 'axios'
 import React, { useState, useEffect, useContext, createContext, useMemo } from 'react';
 import { Document } from 'react-pdf';
 import { PDFPageProxy } from 'react-pdf/dist/Page'
-import ProgressCircle from './ProgressCircle'
 import { ITableStyles } from 'src/components/Table'
+import { useAsyncReducer } from 'src/hooks'
+import ProgressCircle from './ProgressCircle'
 
 export interface IPDFProxy {
 	getPage: (page: number) => Promise<PDFPageProxy>
@@ -65,6 +66,12 @@ const PDFDocument = ({
 	const [ PDFProxy, setPDFProxy ] = useState<IPDFProxy | null>(null)
 	const [ base64Url, setBase64Url ] = useState<string>('')
 	const [ progress, setProgress ] = useState(0)
+
+	const [ state, dispatch ] = useAsyncReducer<PDFPageProxy, any>({
+		pending: true,
+		error: null,
+		data: null
+	})
 
 	useEffect(() => {
 		setPDFProxy(null)
