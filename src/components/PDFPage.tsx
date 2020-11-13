@@ -5,6 +5,7 @@ import { KonvaEventObject } from 'konva/types/Node';
 import { LayerContextMenu } from './'
 import { IServerTable } from './Table';
 import { areDeepEqual } from 'src/utils'
+import { withKeyDownList } from 'src/context/KeyDownListCtx'
 
 interface IPDFPageState {
 	isDrawEnabled: boolean
@@ -12,6 +13,7 @@ interface IPDFPageState {
 }
 
 export interface IPDFPageProps extends Omit<IPDFPageCanvasProps, 'enableDraw'> {
+	keyDownList?: string[]
 	readOnly?: boolean
 	hidePageNumber?: boolean
 	hideTags?: boolean
@@ -20,6 +22,7 @@ export interface IPDFPageProps extends Omit<IPDFPageCanvasProps, 'enableDraw'> {
 class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
 
 	static defaultProps: Partial<IPDFPageProps> = {
+		keyDownList: [],
 		readOnly: false,
 		hidePageNumber: false,
 		hideTags: false,
@@ -38,6 +41,19 @@ class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
 		)
 	}
 
+	componentDidUpdate(prevProps: IPDFPageProps) {
+		const prevKeyDownList = prevProps.keyDownList || []
+		const currKeyDownList = this.props.keyDownList || []
+
+		const ctrlKeyIsDownAlone = currKeyDownList.length === 1 && currKeyDownList[ 0 ] === 'Control'
+		const ctrlKeyWasDownAlone = prevKeyDownList.length === 1 && prevKeyDownList[ 0 ] === 'Control'
+
+		if (ctrlKeyWasDownAlone && !ctrlKeyIsDownAlone)
+			this.setState({ isDrawEnabled: false })
+		if (ctrlKeyIsDownAlone && !ctrlKeyWasDownAlone)
+			this.setState({ isDrawEnabled: true })
+	}
+
 	handleLayerContextMenu = (e: KonvaEventObject<PointerEvent>) => {
 		LayerContextMenu({
 			left: e.evt.clientX,
@@ -47,13 +63,13 @@ class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
 	}
 
 	handleCreateTable = (table: IServerTable) => {
-		this.setState({ isDrawEnabled: true })
+		this.setState({ isDrawEnabled: !!this.props.keyDownList!.length })
 		this.props.onCreateTable!(table)
 	}
 
 	render() {
-		const { readOnly, pageNumber, hidePageNumber } = this.props
 		console.log('PAGE RENDERS')
+		const { readOnly, pageNumber, hidePageNumber } = this.props
 
 		return (
 			<div className={`pdf_page ${readOnly ? 'readonly' : ''}`}>
@@ -64,10 +80,7 @@ class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
 				)}
 				<PDFPageCanvas
 					{...this.props}
-					onVisibilityChange={isVisible => {
-						console.log('FROM PAGE:', isVisible, 'scale:', this.props.scale)
-						this.setState({ isVisible })
-					}}
+					onVisibilityChange={isVisible => this.setState({ isVisible })}
 					pageNumber={pageNumber}
 					onLayerContextMenu={this.handleLayerContextMenu}
 					enableDraw={this.state.isDrawEnabled}
@@ -81,68 +94,4 @@ class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
 	}
 }
 
-export default PDFPage
-
-
-// function PDFPageOld({
-// 	pageNumber,
-// 	readOnly = false,
-// 	hidePageNumber = false,
-// 	hideTags = false,
-// 	onCreateTable = () => { },
-// 	...props
-// }: IPDFPageProps) {
-// 	console.log('PAGE RERENDER')
-
-// 	const [ isDrawEnabled, setIsDrawEnabled ] = useState(false)
-// 	const [ isMouseOverCanvas, setIsMouseOverCanvas ] = useState(false)
-
-// 	function handleLayerContextMenu(e: KonvaEventObject<PointerEvent>) {
-// 		LayerContextMenu({
-// 			left: e.evt.clientX,
-// 			top: e.evt.clientY,
-// 			onEnableDraw: () => setIsDrawEnabled(true)
-// 		})
-// 	}
-
-// 	function handleCreateTable(table: IServerTable) {
-// 		setIsDrawEnabled(false)
-// 		onCreateTable(table)
-// 	}
-
-// 	useGlobalKeyDown(e => {
-// 		if (e.key === 'Control')
-// 			setIsDrawEnabled(true)
-// 	})
-
-// 	useGlobalKeyUp(e => {
-// 		if (e.key === 'Control')
-// 			setIsDrawEnabled(false)
-// 	})
-
-// 	return (
-// 		<div className={`pdf_page ${readOnly ? 'readonly' : ''}`}>
-// 			{!readOnly && (
-// 				<button onClick={() => setIsDrawEnabled(true)}>
-// 					New Table
-// 				</button>
-// 			)}
-// 			<PDFPageCanvas
-// 				onMouseEnter={() => setIsMouseOverCanvas(true)}
-// 				onMouseLeave={() => setIsMouseOverCanvas(false)}
-// 				pageNumber={pageNumber}
-// 				onLayerContextMenu={handleLayerContextMenu}
-// 				enableDraw={isDrawEnabled}
-// 				onCreateTable={handleCreateTable}
-// 				{...props}
-// 			/>
-// 			{!hidePageNumber && (
-// 				<div>Page {pageNumber}</div>
-// 			)}
-// 		</div>
-// 	)
-// }
-
-
-
-// export default React.memo(PDFPage, arePropsEqualDeep);
+export default withKeyDownList<IPDFPageProps>(PDFPage)

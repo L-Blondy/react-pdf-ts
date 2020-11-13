@@ -60,9 +60,7 @@ const PDFPageCanvas = ({
 	useMouseCursorEffect(hoverTargetName, enableDraw, layerRef)
 	useEffect(() => setTables(toLibraryTables(ServerTables, scale)), [ ServerTables, scale ])
 	useEffect(() => canvas && onRenderRef.current(canvas), [ canvas, onRenderRef ])
-	useEffect(() => {
-		onVisibilityChangeRef.current(shouldLoadCanvas)
-	}, [ shouldLoadCanvas, onVisibilityChangeRef ])
+	useEffect(() => onVisibilityChangeRef.current(shouldLoadCanvas), [ shouldLoadCanvas, onVisibilityChangeRef ])
 
 	function updateTable(table: ILibraryTable) {
 		setTables(tables.map(t => t.id === table.id ? table : t))

@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+// WARNING: if Chrome devtools are opened you need to move the mouse to update the cursor
+
 function useMouseCursorEffect(
 	hoverTargetName: string,
 	enableDraw: boolean,
@@ -25,10 +27,7 @@ function useMouseCursorEffect(
 		else if (hoverTargetName === 'middle-left _anchor' || hoverTargetName === 'middle-right _anchor')
 			cursorStyle = 'w-resize'
 		layerRef.current.style.cursor = cursorStyle
-		//This is used to rerender the mouse cursor, 
-		//otherwise user would need to move the mouse to rerender it
-		layerRef.current.style.visibility = 'hidden'
-		layerRef.current.style.visibility = 'visible'
+
 	}, [ hoverTargetName, enableDraw, layerRef ])
 }
 
