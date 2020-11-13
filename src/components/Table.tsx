@@ -98,7 +98,6 @@ function Table({
 	const lastContextMenuTimeStamp = useRef(0)
 	const lastTransformOrDragEndTimeStamp = useRef(0)
 	const onMouseEnterRef = useUpdatedRef(onMouseEnter)
-	// const [ mouseOverTargetName, setMouseOverTargetName ] = useState('')
 	const [ isSelected, setIsSelected ] = useState(false)
 	const [ isHovered, setIsHovered ] = useState(false)
 	const [ isContextMenuOpen, setIsContextMenuOpen ] = useState(false)
@@ -122,7 +121,7 @@ function Table({
 	useGlobalContextMenu(e => {
 		disableWarnings() //expect Konva deprecation warning
 		const isTableContextMenu = e.timeStamp === lastContextMenuTimeStamp.current
-		if (!isTableContextMenu) return setIsSelected(false)
+		if (!isTableContextMenu || table.status === TABLE_STATUS.REJECTED) return setIsSelected(false)
 		setIsSelected(true)
 		enableWarnings() //restore warnings
 	})
@@ -248,8 +247,9 @@ function Table({
 				fill={styles()!.fill}
 				strokeWidth={styles()!.strokeWidth! + ((isHovered || isSelected) && !disabled ? 1 : 0)}
 				dragBoundFunc={dragBoundFunc}
+				dash={[ 3, 3 ]}
 			/>
-			{(isContextMenuOpen || isSelected) && !disabled && (
+			{(isContextMenuOpen || isSelected) && !disabled && table.status !== TABLE_STATUS.REJECTED && (
 				<Transformer
 					node={rectRef.current}
 					onClick={e => { lastClickInsideTimeStamp.current = e.evt.timeStamp }}

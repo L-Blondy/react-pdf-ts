@@ -47,11 +47,11 @@ const PDFPageCanvas = ({
 
 	const layerRef = useRef<HTMLCanvasElement | null>(null)
 	const onRenderRef = useUpdatedRef(onRender)
-	const loadCanvas = useIsVisible(layerRef, { margin: '1000px' })
-	const showPreloader = useIsVisible(layerRef)
+	const shouldLoadCanvas = useIsVisible(layerRef, { margin: '1000px' })
+	const isVisible = useIsVisible(layerRef)
 	const [ hoverTargetName, setHoverTargetName ] = useState('')
 	const { tableStyles } = usePDFContext()
-	const [ canvas, pageWidth, pageHeight ] = usePDFPageCanvas(pageNumber, debounceRenderMs, scale, loadCanvas)
+	const [ canvas, pageWidth, pageHeight ] = usePDFPageCanvas(pageNumber, debounceRenderMs, scale, shouldLoadCanvas)
 	const [ tables, setTables ] = useState<ILibraryTable[]>(toLibraryTables(ServerTables, scale))
 
 	useMouseCursorEffect(hoverTargetName, enableDraw, layerRef)
@@ -95,7 +95,7 @@ const PDFPageCanvas = ({
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave} >
 
-			<PDFPageCanvasPreloader when={!canvas && showPreloader} />
+			<PDFPageCanvasPreloader when={!canvas && isVisible} />
 
 			<Stage height={pageHeight} width={pageWidth}>
 
