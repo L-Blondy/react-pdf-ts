@@ -6,6 +6,10 @@ body,
    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.app {
+   overflow: auto;
+}
+
 .pdf_document {
    height: 100%;
    display: flex;

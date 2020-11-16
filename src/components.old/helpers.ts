@@ -1,4 +1,4 @@
-import { IServerTable, ILibraryTable } from 'src/components/Table';
+import { IServerTable, ILibraryTable } from 'src/components.old/Table';
 
 export const toLibraryTables = (tables: IServerTable[], scale: number): ILibraryTable[] => {
 	const dpi = 4.16;

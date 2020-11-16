@@ -1,29 +1,29 @@
+import { IDocumentProxy } from './PDFDocument';
 import { useState, useEffect, useRef } from 'react';
 import { useDebouncedState } from 'src/hooks'
-import { usePDFContext } from 'src/components/PDFDocument'
+import { usePDFContext } from 'src/components.old/PDFDocument'
 
-function usePDFPageCanvas(
+function useCanvas(
 	pageNumber: number,
-	debounce: number,
 	scale: number,
-	isVisible: boolean
+	isInLoadZone: boolean,
+	documentProxy: IDocumentProxy,
+	debounce: number
 ) {
 
-	const documentProxy = usePDFContext()
 	const [ canvas, setCanvas ] = useState<HTMLCanvasElement>()
-	const [ pageDebounced, setPageDebounced ] = useDebouncedState(pageNumber, debounce)
-	const [ isLoaded, setIsLoaded ] = useState(false)
+	const [ pageNumberDebounced, setPageNumberDebounced ] = useDebouncedState(pageNumber, debounce)
 	const isLoadedRef = useRef(false)
 
 	function onPageNumberChange() {
-		setPageDebounced(pageNumber)
+		setPageNumberDebounced(pageNumber)
 		setCanvas(undefined)
 	}
 
 	function onPageDebouncedChange() {
-		!isLoadedRef.current && isVisible && documentProxy
+		!isLoadedRef.current && isInLoadZone && documentProxy
 			// isVisible && documentProxy
-			.getPage(pageDebounced)
+			.getPage(pageNumberDebounced)
 			.then((pageProxy: any) => {
 				const newCanvas = document.createElement('canvas')
 				newCanvas.width = pageProxy.view[ 2 ]
@@ -34,6 +34,7 @@ function usePDFPageCanvas(
 
 				renderTask.promise
 					.then((e: any) => {
+						console.log(newCanvas)
 						setCanvas(newCanvas)
 						isLoadedRef.current = true
 					})
@@ -43,9 +44,9 @@ function usePDFPageCanvas(
 	}
 
 	useEffect(onPageNumberChange, [ pageNumber ]) //eslint-disable-line
-	useEffect(onPageDebouncedChange, [ pageDebounced, isVisible, documentProxy, setIsLoaded, isLoaded ])
+	useEffect(onPageDebouncedChange, [ pageNumberDebounced, isInLoadZone, documentProxy ])
 
 	return [ canvas, documentProxy.pageWidth * scale, documentProxy.pageHeight * scale ] as const
 }
 
-export default usePDFPageCanvas;
+export default useCanvas;

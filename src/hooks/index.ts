@@ -14,4 +14,7 @@ export { default as useThrottle } from './useThrottle'
 export { default as useUpdateState } from './useUpdateState'
 export { default as useIsVisible } from './useIsVisible'
 export { default as useAsyncReducer } from './useAsyncReducer'
+export { default as useKeyBinding } from './useKeyBinding'
+export { default as useLastClickTimeStamp } from './useLastClickTimeStamp'
+export { default as useLastContextMenuTimeStamp } from './useLastContextMenuTimeStamp'
 

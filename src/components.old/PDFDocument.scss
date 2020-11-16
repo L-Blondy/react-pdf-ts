@@ -1,0 +1,11 @@
+.pdf_document {
+   &.loading {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+   }
+
+   .offscreen {
+      display: none;
+   }
+}

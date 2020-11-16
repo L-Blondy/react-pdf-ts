@@ -4,13 +4,11 @@ import ReactDOM from 'react-dom';
 import "konva";
 import App from './App';
 import { pdfjs } from 'react-pdf';
-import KeyDownListCtx from 'src/context/KeyDownListCtx'
+// import KeyDownListCtx from 'src/context/KeyDownListCtx'
 
 ReactDOM.render(
   <React.StrictMode>
-    <KeyDownListCtx>
-      <App />
-    </KeyDownListCtx>
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 )

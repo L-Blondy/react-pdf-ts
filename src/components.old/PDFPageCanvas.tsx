@@ -2,7 +2,7 @@ import './PDFPageCanvas.scss'
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { Stage, Layer, Image } from 'react-konva'
 import { useUpdatedRef, useIsVisible } from 'src/hooks'
-import { PDFPageCanvasPreloader, Table, DrawTable, usePDFPageCanvas, useMouseCursorEffect } from './'
+import { PDFPageCanvasPreloader, Table, DrawTable, usePDFPageCanvas, useMouseCursorEffect } from '.'
 import { ILibraryTable, IServerTable, TABLE_STATUS } from './Table'
 import { ITableBounds } from './DrawTable'
 import { toLibraryTables, toServerTable } from './helpers'
@@ -11,6 +11,7 @@ import { KonvaEventObject } from 'konva/types/Node';
 
 export interface IPDFPageCanvasProps {
 	pageNumber: number,
+	keyDownList?: string[],
 	scale?: number,
 	debounceRenderMs?: number
 	tables?: IServerTable[]
@@ -30,6 +31,7 @@ export interface IPDFPageCanvasProps {
 
 const PDFPageCanvas = ({
 	pageNumber,
+	keyDownList = [],
 	scale = 1,
 	debounceRenderMs = 500,
 	tables: ServerTables = [],
@@ -46,7 +48,6 @@ const PDFPageCanvas = ({
 	onMouseLeave = () => { },
 	onVisibilityChange = () => { }
 }: IPDFPageCanvasProps) => {
-
 	const layerRef = useRef<HTMLCanvasElement | null>(null)
 	const onRenderRef = useUpdatedRef(onRender)
 	const onVisibilityChangeRef = useUpdatedRef(onVisibilityChange)
@@ -117,6 +118,7 @@ const PDFPageCanvas = ({
 						<Table
 							layerRef={layerRef}
 							table={tableData}
+							keyDownList={keyDownList}
 							key={`table-${pageNumber}-${tableIndex}`}
 							onClick={() => onClickTable({ pageNumber, tableIndex })}
 							onDragEnd={updateTable}

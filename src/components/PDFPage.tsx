@@ -1,97 +1,85 @@
-import './PDFPage.scss'
-import React from 'react';
-import PDFPageCanvas, { IPDFPageCanvasProps } from './PDFPageCanvas'
-import { KonvaEventObject } from 'konva/types/Node';
-import { LayerContextMenu } from './'
-import { IServerTable } from './Table';
-import { areDeepEqual } from 'src/utils'
-import { withKeyDownList } from 'src/context/KeyDownListCtx'
+import React, { createRef } from 'react'
+import { IDocumentProxy } from './PDFDocument'
+import Canvas from './Canvas'
+import { PagePropsFromDocument } from './PDFDocument'
 
-interface IPDFPageState {
-	isDrawEnabled: boolean
+
+interface State {
+	isInLoadZone: boolean
 	isVisible: boolean
 }
 
-export interface IPDFPageProps extends Omit<IPDFPageCanvasProps, 'enableDraw'> {
-	keyDownList?: string[]
-	readOnly?: boolean
-	hidePageNumber?: boolean
-	hideTags?: boolean
+interface PageProps extends PagePropsFromDocument {
+	scale: number
 }
 
-class PDFPage extends React.Component<IPDFPageProps, IPDFPageState>{
+class PDFPage extends React.Component<PageProps> {
 
-	static defaultProps: Partial<IPDFPageProps> = {
-		keyDownList: [],
-		readOnly: false,
-		hidePageNumber: false,
-		hideTags: false,
-		onCreateTable: () => { },
-	}
+	private pageRef = createRef<HTMLDivElement>()
 
-	state: IPDFPageState = {
-		isDrawEnabled: false,
+	state: State = {
+		isInLoadZone: false,
 		isVisible: false
 	}
 
-	shouldComponentUpdate(nextProps: IPDFPageProps, nextState: IPDFPageState) {
-		return nextState.isVisible && (
-			!areDeepEqual(this.props, nextProps) ||
-			!areDeepEqual(this.state, nextState)
+	componentDidMount() {
+		const inVisibileZone: IntersectionObserverCallback = (entries) => {
+			entries.forEach(e => {
+				e.intersectionRatio > 0
+					? this.setState({ isVisible: true })
+					: this.setState({ isVisible: false })
+			})
+		}
+
+		const inLoadZone: IntersectionObserverCallback = (entries) => {
+			entries.forEach(e => {
+				e.intersectionRatio > 0
+					? this.setState({ isInLoadZone: true })
+					: this.setState({ isInLoadZone: false })
+			})
+		}
+
+		const inLoadZoneOptions = {
+			rootMargin: '500px 0px 500px 0px',
+			root: document.querySelector('.app')
+		}
+
+		new IntersectionObserver(inVisibileZone).observe(this.pageRef.current!)
+		new IntersectionObserver(inLoadZone, inLoadZoneOptions).observe(this.pageRef.current!)
+	}
+
+	shouldComponentUpdate(nextProps: PageProps, nextState: State) {
+		const prevState = this.state
+		const prevProps = this.props
+		const hasEnteredLoadZone = !prevState.isInLoadZone && nextState.isInLoadZone
+		return (
+			hasEnteredLoadZone || nextState.isInLoadZone
 		)
 	}
 
-	componentDidUpdate(prevProps: IPDFPageProps) {
-		const prevKeyDownList = prevProps.keyDownList || []
-		const currKeyDownList = this.props.keyDownList || []
-
-		const ctrlKeyIsDownAlone = currKeyDownList.length === 1 && currKeyDownList[ 0 ] === 'Control'
-		const ctrlKeyWasDownAlone = prevKeyDownList.length === 1 && prevKeyDownList[ 0 ] === 'Control'
-
-		if (ctrlKeyWasDownAlone && !ctrlKeyIsDownAlone)
-			this.setState({ isDrawEnabled: false })
-		if (ctrlKeyIsDownAlone && !ctrlKeyWasDownAlone)
-			this.setState({ isDrawEnabled: true })
-	}
-
-	handleLayerContextMenu = (e: KonvaEventObject<PointerEvent>) => {
-		LayerContextMenu({
-			left: e.evt.clientX,
-			top: e.evt.clientY,
-			onEnableDraw: () => this.setState({ isDrawEnabled: true })
-		})
-	}
-
-	handleCreateTable = (table: IServerTable) => {
-		this.setState({ isDrawEnabled: !!this.props.keyDownList!.length })
-		this.props.onCreateTable!(table)
+	componentDidUpdate(prevProps: PageProps) {
+		// console.log(this.pageRef.current)
+		// this.state.isInLoadZone && console.log(true)
+		// console.log(prevProps.documentProxy === this.props.documentProxy)
 	}
 
 	render() {
-		console.log('PAGE RENDERS')
-		const { readOnly, pageNumber, hidePageNumber } = this.props
+		const { documentProxy, keyBinding, pageNumber, tableStyles, timeStamp, scale } = this.props
 
 		return (
-			<div className={`pdf_page ${readOnly ? 'readonly' : ''}`}>
-				{!readOnly && (
-					<button onClick={() => this.setState({ isDrawEnabled: true })}>
-						New Table
-					</button>
-				)}
-				<PDFPageCanvas
-					{...this.props}
-					onVisibilityChange={isVisible => this.setState({ isVisible })}
-					pageNumber={pageNumber}
-					onLayerContextMenu={this.handleLayerContextMenu}
-					enableDraw={this.state.isDrawEnabled}
-					onCreateTable={this.handleCreateTable}
+			<div ref={this.pageRef}>
+				<div>Taglist</div>
+				<Canvas
+					scale={scale}
+					pageNumber={this.props.pageNumber}
+					isInLoadZone={this.state.isInLoadZone}
+					isVisible={this.state.isVisible}
+					documentProxy={documentProxy}
 				/>
-				{!hidePageNumber && (
-					<div>Page {pageNumber}</div>
-				)}
+				<div>Page {pageNumber}</div>
 			</div>
 		)
 	}
 }
 
-export default withKeyDownList<IPDFPageProps>(PDFPage)
+export default PDFPage
