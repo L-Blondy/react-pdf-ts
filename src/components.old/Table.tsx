@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { KonvaEventObject } from 'konva/types/Node';
-import { Rect, Transformer, } from 'react-konva'
+import { Rect, Transformer } from 'react-konva'
 import { useGlobalKeyDown, useGlobalClick, useGlobalContextMenu, useUpdatedRef } from 'src/hooks'
 import { TableContextMenu, useBindRectToLayerBorders } from '.'
 import { enableWarnings, disableWarnings } from './helpers'

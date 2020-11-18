@@ -22,7 +22,6 @@ function useCanvas(
 
 	function onPageDebouncedChange() {
 		!isLoadedRef.current && isInLoadZone && documentProxy
-			// isVisible && documentProxy
 			.getPage(pageNumberDebounced)
 			.then((pageProxy: any) => {
 				const newCanvas = document.createElement('canvas')
@@ -32,9 +31,8 @@ function useCanvas(
 				const viewport = pageProxy.getViewport({ scale: 1 })
 				const renderTask = pageProxy.render({ canvasContext, viewport });
 
-				renderTask.promise
+				return renderTask.promise
 					.then((e: any) => {
-						console.log(newCanvas)
 						setCanvas(newCanvas)
 						isLoadedRef.current = true
 					})

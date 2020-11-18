@@ -1,8 +1,9 @@
 import './App.scss'
 import axios from 'axios'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PDFDocument from 'src/components/PDFDocument'
 import PDFPage from 'src/components/PDFPage'
+import { IServerTable } from 'src/components/Table'
 // import PDFPage from 'src/components/PDFPage'
 // import PDFPage from 'src/components.old/PDFPage'
 // import { IServerTable } from 'src/components.old/Table'
@@ -11,14 +12,37 @@ import PDFPage from 'src/components/PDFPage'
 axios.defaults.baseURL = "http://127.0.0.1:8000";
 
 const App = () => {
+	const [ _, updateApp ] = useState({})
+
+	const [ tables, setTables ] = useState<IServerTable[]>([])
+
+	const handleTableUpdate = (table: IServerTable) => {
+		setTables(tables => tables.map(t => t.id !== table.id ? t : table))
+	}
+
+	useEffect(() => {
+		axios
+			.get('/fileData')
+			.then(res => {
+				setTables(res.data.current_document.tables)
+			})
+	}, [])
 
 	return (
 		<div className='app'>
+			<button onClick={() => updateApp({})}>UPDATE APP</button>
 
-			<PDFDocument file="http://127.0.0.1:8000/pdf/Publication.pdf" tableStyles={{}}>
+			<PDFDocument file="http://127.0.0.1:8000/pdf/Publication.pdf" tables={tables}>
+
 				{(pageList, propsForPageNumber) => pageList.map((pageNumber) => (
-					<PDFPage {...propsForPageNumber(pageNumber)} scale={0.5} />
+					<PDFPage
+						{...propsForPageNumber(pageNumber)}
+						scale={0.5}
+						tables={tables.filter(table => table.page === pageNumber)}
+						onTableUpdate={handleTableUpdate}
+					/>
 				))}
+
 			</PDFDocument>
 
 		</div>

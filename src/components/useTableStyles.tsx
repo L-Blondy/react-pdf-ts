@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
-import { ITableStyles } from './Table'
+import React, { useCallback, useMemo } from 'react';
+import { useUpdatedRef } from 'src/hooks';
+import { ILibraryTable, IAllTableStyles, ITableStyles, TABLE_STATUS } from './Table'
 
-const defaultStyles: ITableStyles = {
+const defaultStyles: IAllTableStyles = {
 	drawing: {
 		stroke: '#87cefa90',
 		fill: '#87cefa40',
@@ -30,30 +31,44 @@ const defaultStyles: ITableStyles = {
 }
 
 
-function useTableStyles(customStyles: ITableStyles): ITableStyles {
+function useTableStyles(customStyles: IAllTableStyles) {
 
-	return useMemo(() => ({
+	const customStylesRef = useUpdatedRef(customStyles)
+
+	const tableStyles = useMemo(() => ({
 		drawing: {
 			...defaultStyles.drawing,
-			...customStyles.drawing
+			...customStylesRef.current.drawing
 		},
 		not_verified: {
 			...defaultStyles.not_verified,
-			...customStyles.not_verified
+			...customStylesRef.current.not_verified
 		},
 		rejected: {
 			...defaultStyles.rejected,
-			...customStyles.rejected
+			...customStylesRef.current.rejected
 		},
 		verified: {
 			...defaultStyles.verified,
-			...customStyles.verified
+			...customStylesRef.current.verified
 		},
 		completed: {
 			...defaultStyles.completed,
-			...customStyles.completed
+			...customStylesRef.current.completed
 		},
-	}), [ customStyles ])
+	}), [ customStylesRef ])
+
+	const getTableStyles = useCallback((table: ILibraryTable): ITableStyles => {
+		if (table.reviewStatus === TABLE_STATUS.VERIFIED)
+			return tableStyles.completed
+		if (table.status === TABLE_STATUS.VERIFIED)
+			return tableStyles.verified
+		if (table.status === TABLE_STATUS.REJECTED)
+			return tableStyles.rejected
+		return tableStyles.not_verified
+	}, [ tableStyles ])
+
+	return getTableStyles
 }
 
 export default useTableStyles;

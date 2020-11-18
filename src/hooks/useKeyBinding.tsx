@@ -1,7 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 import { useGlobalKeyDown, useGlobalKeyUp } from 'src/hooks'
 
-
 const useKeyBinding = () => {
 
 	const [ keyBinding, setKeyBinding ] = useState<string[]>([])
@@ -18,13 +17,11 @@ const useKeyBinding = () => {
 		setKeyBinding(keyBinding => keyBinding.filter(key => key !== e.key))
 	})
 
-
 	const KeyBinding = useMemo(() => ({
 		matches(...keys: string[]) {
-			console.log(isValidRef.current)
-			if (!isValidRef.current)
-				return false
-			return JSON.stringify(keys) === JSON.stringify(keyBinding)
+			return isValidRef.current
+				? JSON.stringify(keys) === JSON.stringify(keyBinding)
+				: false
 		}
 	}), [ keyBinding ])
 

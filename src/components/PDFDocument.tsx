@@ -2,10 +2,11 @@ import './PDFDocument.scss'
 import React, { useState, useEffect, useContext, createContext, useMemo, useCallback } from 'react';
 import { Document } from 'react-pdf';
 import { PDFPageProxy } from 'react-pdf/dist/Page'
-import { ITableStyles } from 'src/components/Table'
+import { IAllTableStyles, ITableStyles, IServerTable, ILibraryTable } from 'src/components/Table'
 import useLoadDocument from './useLoadDocument'
 import useTableStyles from './useTableStyles'
-import { useLastClickTimeStamp, useLastContextMenuTimeStamp, useKeyBinding, useUpdatedRef } from 'src/hooks'
+import { useKeyBinding, useUpdatedRef } from 'src/hooks'
+import { toLibraryTables } from './helpers'
 
 export interface IDocumentProxy {
 	getPage: (page: number) => Promise<PDFPageProxy>
@@ -16,56 +17,46 @@ export interface IDocumentProxy {
 
 export interface PagePropsFromDocument {
 	pageNumber: number,
-	tableStyles: ITableStyles;
-	timeStamp: {
-		click: number;
-		contextMenu: number;
-	};
-	keyBinding: {
-		matches(...keys: string[]): boolean;
-	};
 	documentProxy: IDocumentProxy;
+	getTableStyles: (table: ILibraryTable) => ITableStyles
 }
+
 interface Props {
 	file: string
+	tables: IServerTable[]
+	className?: string
+	tableStyles?: IAllTableStyles
 	children: (pageList: number[], propsForPageNumber: (pageNumber: number) => PagePropsFromDocument) => React.ReactChildren | React.ReactNode
 	onLoad?: (documentProxy: IDocumentProxy) => void
-	className?: string
-	tableStyles?: ITableStyles
 }
 
 const PDFDocument = ({
 	file: src,
+	tables: serverTables = [],
+	tableStyles: customTableStyles = {},
 	children,
 	onLoad = () => { },
-	tableStyles = {},
 	...props
 }: Props) => {
 
 	const onLoadRef = useUpdatedRef(onLoad)
 
 	const { state, bindToDocument, pageList, preloader } = useLoadDocument(src)
-	const tableStylesWithDefaults = useTableStyles(tableStyles)
-	const lastClickTimeStamp = useLastClickTimeStamp()
-	const lastContextMenuTimeStamp = useLastContextMenuTimeStamp()
-	const keyBinding = useKeyBinding()
+	const getTableStyles = useTableStyles(customTableStyles)
 
 	useEffect(() => {
 		state.data && onLoadRef.current(state.data)
 	}, [ state.data ]) //eslint-disable-line
 
 
-	const propsForPageNumber = useCallback<(pageNumber: number) => PagePropsFromDocument>((pageNumber) => ({
-		pageNumber,
-		keyBinding,
+	const propsForPageNumber = useCallback((pageNumber) => ({
 		key: `${src}_page-number-${pageNumber}`,
-		tableStyles: tableStylesWithDefaults,
-		timeStamp: {
-			click: lastClickTimeStamp,
-			contextMenu: lastContextMenuTimeStamp
-		},
-		documentProxy: state.data as IDocumentProxy
-	}), [ src, tableStylesWithDefaults, lastClickTimeStamp, lastContextMenuTimeStamp, keyBinding, state.data ])
+		pageNumber,
+		documentProxy: state.data as IDocumentProxy,
+		getTableStyles,
+		// timeStamp,
+		// keyBinding,
+	}), [ src, state.data, getTableStyles ])
 
 	return (
 		<Document {...bindToDocument} {...props} >

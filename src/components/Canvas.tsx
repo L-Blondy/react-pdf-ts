@@ -11,25 +11,36 @@ import { KonvaEventObject } from 'konva/types/Node';
 import { Page } from 'react-pdf'
 import useCanvas from './useCanvas'
 import { IDocumentProxy } from './PDFDocument'
+import Table, { ILibraryTable, IAllTableStyles, ITableStyles } from './Table'
+import { IServerTable } from 'src/components.old/Table';
 
 interface Props {
 	pageNumber: number
 	scale: number
-	isVisible: boolean
 	isInLoadZone: boolean
 	documentProxy: IDocumentProxy
+	tables: ILibraryTable[]
+	getTableStyles: (table: ILibraryTable) => ITableStyles
+	readOnly: boolean
+	tableMinSize?: number
+	onTableUpdate: (table: IServerTable) => void
 }
 
 function Canvas({
 	pageNumber,
 	scale,
-	isVisible,
 	documentProxy,
-	isInLoadZone
+	isInLoadZone,
+	tables,
+	getTableStyles,
+	readOnly,
+	tableMinSize,
+	onTableUpdate,
 }: Props) {
 
 	const [ canvas, width, height ] = useCanvas(pageNumber, scale, isInLoadZone, documentProxy, 350)
 
+	console.log('render canvas')
 	return (
 		<Stage height={height} width={width}>
 
@@ -40,10 +51,24 @@ function Canvas({
 					scale={{ x: scale, y: scale }}
 				/>
 
+				{!!canvas && tables.map(table => (
+					<Table
+						key={`page-${pageNumber}-table-${table.id}`}
+						scale={scale}
+						table={table}
+						tableStyles={getTableStyles(table)}
+						canvasWidth={width}
+						canvasHeight={height}
+						readOnly={readOnly}
+						minSize={tableMinSize}
+						onTableUpdate={onTableUpdate}
+					/>
+				))}
+
 			</Layer>
 
 		</Stage>
 	)
 }
 
-export default Canvas;
+export default React.memo(Canvas);
